@@ -21,7 +21,15 @@
 
 ## 🚀 Usage
 
-### 1. Clone & Install
+### 1. Prerequisites
+
+* Install [Ollama](https://ollama.com/) for your platform
+* Pull the DeepSeek R1 base model:
+```bash
+ollama pull deepseek-r1
+```
+
+### 2. Clone & Install
 
 ```bash
 git clone https://github.com/babanomania/fikr-e-ghalib.git
@@ -29,7 +37,7 @@ cd fikr-e-ghalib
 pip install -r requirements.txt
 ```
 
-### 2. Fine-tune the Model
+### 3. Fine-tune the Model
 
 ```bash
 python lib/model_fine_tune.py
@@ -40,13 +48,13 @@ This will:
 - Apply LoRA adaptations using the Ghalib dataset
 - Save the fine-tuned model weights
 
-### 3. Run the Agent with Streamlit
+### 4. Run the Agent with Streamlit
 
 ```bash
 streamlit run app.py
 ```
 
-### 4. Paste any article URL and get poetic commentary ✨
+### 5. Paste any article URL and get poetic commentary ✨
 
 
 ## ⚙️ Model Training Summary
