@@ -34,3 +34,5 @@ coverage.xml
 *.hypothesis
 venv/
 *.log
+
+models/
