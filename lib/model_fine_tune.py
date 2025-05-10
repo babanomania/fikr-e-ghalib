@@ -6,8 +6,9 @@ import torch
 # Load Qwen1.5 model and tokenizer
 model_name = "Qwen/Qwen1.5-1.8B-Chat"
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.float32)
+
+tokenizer.pad_token = tokenizer.eos_token
 
 # Apply LoRA configuration
 lora_config = LoraConfig(
@@ -20,7 +21,7 @@ lora_config = LoraConfig(
 model = get_peft_model(model, lora_config)
 
 # Load updated dataset
-data_path = "data/dataset.jsonl"
+data_path = "data/dataset1.jsonl"
 dataset = load_dataset("json", data_files=data_path)["train"]
 
 # Tokenization function
@@ -33,7 +34,7 @@ tokenized_dataset = dataset.map(tokenize, remove_columns=dataset.column_names)
 
 # Training configuration
 training_args = TrainingArguments(
-    output_dir="./fikr_e_ghalib_qwen_lora",
+    output_dir="models/fikr_e_ghalib_qwen_lora",
     per_device_train_batch_size=1,
     gradient_accumulation_steps=8,
     learning_rate=2e-4,
@@ -58,5 +59,5 @@ trainer = Trainer(
 trainer.train()
 
 # Save model
-model.save_pretrained("./fikr_e_ghalib_qwen_lora")
-tokenizer.save_pretrained("./fikr_e_ghalib_qwen_lora")
+model.save_pretrained("models/fikr_e_ghalib_qwen_lora")
+tokenizer.save_pretrained("models/fikr_e_ghalib_qwen_lora")

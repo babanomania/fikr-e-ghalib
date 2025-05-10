@@ -20,7 +20,7 @@ def extract_roman_urdu_verse(raw_output: str) -> str:
 
 
 # Load the fine-tuned model
-model_path = "./fikr_e_ghalib_qwen_lora"
+model_path = "models/fikr_e_ghalib_qwen_lora"
 tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", torch_dtype=torch.float32)
 

@@ -23,7 +23,7 @@ llmGhalib = OllamaLLM(model="fikr-e-ghalib-qwen")  # locally added fine-tuned mo
 logger.info("Initialized Ollama DeepSeek model")
 
 # Initialize the model and tokenizer
-model_path = "./fikr_e_ghalib_qwen_lora"
+model_path = "models/fikr_e_ghalib_qwen_lora"
 tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
 model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", torch_dtype=torch.float32)
 tokenizer.pad_token = tokenizer.eos_token
