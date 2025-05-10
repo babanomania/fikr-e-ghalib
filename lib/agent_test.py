@@ -1,4 +1,4 @@
-from lib.agent_lib import ghalib_agent, summarize_article, extract_theme_sentiment, extract_roman_urdu_verse
+from agent_lib import ghalib_agent
 import logging
 import sys
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logger.info("Starting Ghalib agent application")
-    test_url = "https://sports.ndtv.com/cricket/singer-rahul-vaidhya-mocks-virat-kohli-over-avneet-kaur-row-says-rcb-star-blocked-him-8341220"
+    test_url = "https://ideas.ted.com/10-real-life-love-stories-thatll-grab-you-by-the-heart-from-storycorps"
     try:
         ghalib_agent(test_url)
         logger.info("Application completed successfully")

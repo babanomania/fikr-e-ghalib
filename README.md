@@ -40,11 +40,11 @@ pip install -r requirements.txt
 ### 3. Fine-tune the Model
 
 ```bash
-python lib/model_fine_tune.py
+python lib/model_fine_tune2.py
 ```
 
 This will:
-- Load the base Qwen 1.5B model
+- Load the base Qwen3 0.6B model
 - Apply LoRA adaptations using the Ghalib dataset
 - Save the fine-tuned model weights
 
@@ -59,7 +59,7 @@ streamlit run app.py
 
 ## ⚙️ Model Training Summary
 
-* Base model: `Qwen/Qwen1.5-1.8B-Chat`
+* Base model: `Qwen/Qwen3-0.6B-Chat`
 * Tuned using LoRA adapters with 2000 samples
 * Dataset contains:
 

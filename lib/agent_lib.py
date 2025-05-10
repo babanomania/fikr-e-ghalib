@@ -4,6 +4,7 @@ import re
 import logging
 import sys
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from peft import PeftModel, PeftConfig
 import torch
 
 # Configure logging
@@ -22,12 +23,17 @@ llmSummarizer = OllamaLLM(model="deepseek-r1")  # downloaded from Ollama
 llmGhalib = OllamaLLM(model="fikr-e-ghalib-qwen")  # locally added fine-tuned model in Ollama
 logger.info("Initialized Ollama DeepSeek model")
 
-# Initialize the model and tokenizer
-model_path = "models/fikr_e_ghalib_qwen_lora"
-tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", torch_dtype=torch.float32)
-tokenizer.pad_token = tokenizer.eos_token
-logger.info("Initialized Qwen model and tokenizer")
+# Replace the model initialization section with PEFT model setup
+device = "mps" if torch.backends.mps.is_available() else "cpu"
+base_model_id = "Qwen/Qwen3-0.6B"
+adapter_path = "models/fikr-e-ghalib-qwen3-lora"
+
+tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=True)
+base_model = AutoModelForCausalLM.from_pretrained(base_model_id, device_map="auto", trust_remote_code=True)
+model = PeftModel.from_pretrained(base_model, adapter_path)
+model = model.to(device)
+model.eval()
+logger.info("Initialized Qwen model and tokenizer with PEFT")
 
 # Step 1: Article summarization function
 def summarize_article(url):
@@ -83,32 +89,30 @@ def generate_ghalib_verse(theme, sentiment, summary):
     try:
         thought = f"Ghalib would view {theme} through a {sentiment} lens, reflecting on the essence of contradiction."
         
-        prompt = f"""<|im_start|>system
-                You are a poetic AI trained to think like Mirza Ghalib and write couplets only in Romanized Urdu using the Latin script.
-                <|im_end|>
-                <|im_start|>user
-                Theme: {theme}
-                Sentiment: {sentiment}
-                Thought Process: {thought}
-                Generate a 2-3 line poetic verse in Romanized Urdu inspired by Mirza Ghalib.
-                <|im_end|>
-                <|im_start|>assistant
-                """
+        prompt = f"""Generate a poetic verse in Romanized Urdu inspired by Mirza Ghalib, based on the given theme and sentiment. Keep it authentic to Ghalib's style.
+Theme: {theme}
+Sentiment: {sentiment}
+Thought Process: {thought}
+"""
+        messages = [{"role": "user", "content": prompt}]
+        chat_input = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        inputs = tokenizer(chat_input, return_tensors="pt").to(device)
 
-        inputs = tokenizer(prompt, return_tensors="pt").to("mps")
-        
-        output = model.generate(
-            **inputs,
-            max_new_tokens=200,
-            temperature=0.9,
-            top_p=0.95,
-            do_sample=True,
-            repetition_penalty=1.2,
-            eos_token_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
-        )
+        with torch.no_grad():
+            output = model.generate(
+                **inputs,
+                max_new_tokens=300,
+                temperature=0.7,
+                top_p=0.9,
+                top_k=50,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id
+            )
 
-        decoded = tokenizer.decode(output[0], skip_special_tokens=True)
-        verse = decoded.split("<|im_start|>assistant\n")[-1].split("<|im_end|>")[0].strip()
+        verse = tokenizer.decode(output[0], skip_special_tokens=True)
+        logger.info(f"Raw output from model: {verse}")
+
+        verse = extract_roman_urdu_verse(verse)
         
         logger.info("Successfully generated Ghalib-style verse")
         return verse
@@ -118,13 +122,24 @@ def generate_ghalib_verse(theme, sentiment, summary):
 
 
 def extract_roman_urdu_verse(raw_output: str) -> str:
+    
     # Remove everything before 'assistant'
     assistant_block = raw_output.split("assistant", 1)[-1].strip()
 
-    # Remove any non-Latin Unicode chunks (Chinese, etc.)
-    latin_only = re.split(r"[^\x00-\x7F]+", assistant_block)[0].strip()
+    # Print thinking process if present
+    think_matches = re.findall(r'<think>(.*?)</think>', assistant_block, re.DOTALL)
+    if think_matches:
+        print("\n💭 Thinking Process:")
+        for thought in think_matches:
+            print(thought.strip())
 
-    # Optional: normalize repetitive lines if needed
+    # Remove think tags and their content
+    cleaned_output = re.sub(r'<think>.*?</think>', '', assistant_block, flags=re.DOTALL)
+
+    # Remove any non-Latin Unicode chunks (Chinese, etc.)
+    latin_only = re.split(r"[^\x00-\x7F]+", cleaned_output)[0].strip()
+
+    # Optional: normalize repetitive lines
     lines = latin_only.splitlines()
     unique_lines = []
     for line in lines:
