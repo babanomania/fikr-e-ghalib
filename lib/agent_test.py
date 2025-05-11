@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logger.info("Starting Ghalib agent application")
-    test_url = "https://ideas.ted.com/10-real-life-love-stories-thatll-grab-you-by-the-heart-from-storycorps"
+    test_url = "https://edition.cnn.com/2025/05/10/politics/habeas-corpus-explained"
     try:
         ghalib_agent(test_url)
         logger.info("Application completed successfully")

@@ -61,8 +61,10 @@ model = get_peft_model(model, lora_config)
 #######################
 def generate_conversation(example):
     """Convert dataset examples into conversation format"""
-    input = f"{example['instruction']}\n{example['input']}"
-    output = example["output"].replace("Reasoning:", "<think>").replace("Poem:", "</think>")
+    instruction = "Generate a poetic couplet in English inspired by Mirza Ghalib, based on the given theme and sentiment. Provide reasoning."
+   
+    input = f"{instruction}\nTheme: {example["Theme"]}\nSentiment: {example["Sentiment"]}"
+    output = f"<think>{example["Thinking"]}</think>\n{example["Couplet"]}"
     return {
         "conversation": [
             {"role": "user", "content": input},
@@ -71,7 +73,7 @@ def generate_conversation(example):
     }
 
 # Load and process dataset
-dataset = load_dataset("json", data_files="data/dataset3.jsonl")["train"]
+dataset = load_dataset("csv", data_files="data/dataset.csv")["train"]
 dataset = dataset.map(generate_conversation)
 conversations = tokenizer.apply_chat_template(dataset["conversation"], tokenize=False)
 
@@ -102,7 +104,7 @@ training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=4,
-    num_train_epochs=0.2, # Change to 1 for full training
+    num_train_epochs=1, # Change to 1 for full training
     warmup_steps=5,
     learning_rate=2e-5,
     logging_steps=10,
