@@ -64,7 +64,7 @@ streamlit run app.py
 * Dataset contains:
 
   * Theme, sentiment, and “thought process”
-  * Poetic response in Roman Urdu
+  * Poetic response in English
   * Chat-formatted prompts using `<|im_start|>` / `<|im_end|>`
 
 ## 📬 License
@@ -73,7 +73,7 @@ MIT — poetry is meant to be shared.
 
 ---
 
-> **_"Ilm har mod pe rukta nahi, rasta mangta hai,
-Ghalib ka andaz sikhata hai, har pal mein ik dastaangoi chhupi hoti hai."_**
+> **_इल्म की राह की कोई इंतिहा नहीं, ये हक़ीक़त दिल जाने है, ग़ालिब,
+हर फ़तहयाब चोटी दिखाती है मंज़र उन अनगिनत अनदेखे औराक़ का।_**
 
 _Learning never ends. Ghalib lives on in every thought._
